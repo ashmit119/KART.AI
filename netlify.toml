@@ -1,7 +1,11 @@
 [build]
-  base = "frontend"
-  command = "npm install && npm run build"
-  publish = "dist"
+  command = "cd frontend && npm install && npm run build"
+  publish = "frontend/dist"
 
 [functions]
-  directory = ".netlify/functions-internal"
+  directory = "frontend/.netlify/functions-internal"
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/index"
+  status = 200
