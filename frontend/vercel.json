@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".output/public",
+  "cleanUrls": true
+}
