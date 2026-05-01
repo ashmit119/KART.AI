@@ -1,0 +1,11 @@
+[build]
+  command = "cd frontend && npm install && npm run build"
+  publish = "frontend/.output/public"
+
+[functions]
+  directory = "frontend/.output/server"
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/index"
+  status = 200
