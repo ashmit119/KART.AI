@@ -37,7 +37,3 @@ export const getProduct = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     return await apiFetch(`/products/${data.id}`);
   });
-    if (error) throw new Error(error.message);
-    if (!row) throw new Error("Product not found");
-    return row;
-  });
