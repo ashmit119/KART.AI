@@ -2,6 +2,6 @@
   "version": 2,
   "framework": "vite",
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/client",
+  "outputDirectory": ".output/public",
   "cleanUrls": true
 }
