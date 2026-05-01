@@ -1,0 +1,11 @@
+[build]
+  command = "npm run build"
+  publish = ".output/public"
+
+[functions]
+  directory = ".output/server"
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/index"
+  status = 200
