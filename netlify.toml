@@ -1,4 +1,9 @@
 [build]
   base = "frontend"
   command = "npm install && npm run build"
-  publish = "dist"
+  publish = ".output/public"
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/index"
+  status = 200
