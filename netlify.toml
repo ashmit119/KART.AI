@@ -1,10 +1,10 @@
 [build]
   base = "frontend"
   command = "npm run build"
-  publish = ".output/public"
+  publish = "dist/client"
 
 [functions]
-  directory = ".output/server"
+  directory = ".netlify/functions-internal"
 
 [[redirects]]
   from = "/*"
