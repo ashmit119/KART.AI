@@ -1,13 +1,4 @@
 [build]
-  # Force Netlify to use the correct settings for a monorepo
   base = "frontend"
-  command = "npm install && npm run build && ls -R .output || ls -R dist"
-  publish = ".output/public"
-
-[functions]
-  directory = ".output/server"
-
-[[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/index"
-  status = 200
+  command = "npm install && npm run build"
+  publish = "dist"
