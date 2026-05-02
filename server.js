@@ -17,10 +17,13 @@ const PORT = process.env.PORT || 3000;
 // Connect to MongoDB
 connectDB();
 
-// CORS Middleware - allow localhost origins for dev
+// CORS Middleware - allow localhost and vercel origins
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || origin.indexOf('localhost') !== -1 || origin === process.env.CLIENT_URL) {
+    const isVercel = origin && (origin.endsWith('.vercel.app') || origin.includes('vercel.app'));
+    const isLocal = !origin || origin.indexOf('localhost') !== -1 || origin.indexOf('127.0.0.1') !== -1;
+    
+    if (isLocal || isVercel || origin === process.env.CLIENT_URL) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
