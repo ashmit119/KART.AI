@@ -34,7 +34,7 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-border py-6 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} KART.AI. Crafter with ❤️ in India
+        © {new Date().getFullYear()} KART.AI. Crafted with ❤️ in India
       </div>
     </footer>
   );

@@ -1,53 +1,38 @@
-const { pipeline, RawImage } = require('@huggingface/transformers');
+const axios = require('axios');
+const FormData = require('form-data');
+require('dotenv').config();
 
-let extractorPipeline = null;
-
-/**
- * Initialize the pipeline. This downloads the model on the first run.
- */
-const getEmbeddingPipeline = async () => {
-  if (!extractorPipeline) {
-    console.log('Loading HuggingFace transformer model (Xenova/clip-vit-base-patch32)...');
-    // We use the image-feature-extraction pipeline for extracting visual features
-    extractorPipeline = await pipeline('image-feature-extraction', 'Xenova/clip-vit-base-patch32');
-    console.log('Model loaded successfully.');
-  }
-  return extractorPipeline;
-};
+// Your new Hugging Face Space URL
+const HF_SPACE_URL = 'https://ashmit119-kart-ai.hf.space/embed';
 
 /**
- * Generates a 512-dimension vector embedding for a given image.
- * @param {string|Buffer} imageSource - The URL or Buffer of the image.
- * @returns {Promise<number[]>} - The 512-d feature vector.
+ * Generates a vector embedding for a given image by calling your dedicated 
+ * Hugging Face Space. This keeps your Render server under the memory limit.
+ * @param {Buffer} imageBuffer - The image data.
+ * @returns {Promise<number[]>} - The feature vector.
  */
-const generateImageEmbedding = async (imageSource) => {
+const generateImageEmbedding = async (imageBuffer) => {
   try {
-    const extractor = await getEmbeddingPipeline();
-    
-    let image;
-    if (typeof imageSource === 'string') {
-      // It's a URL
-      image = await RawImage.read(imageSource);
-    } else if (Buffer.isBuffer(imageSource)) {
-      // It's a Buffer, in v3 you can read from buffer using Blob or directly in some methods.
-      // Assuming we pass it to RawImage
-      const blob = new Blob([imageSource]);
-      image = await RawImage.read(blob);
-    } else {
-      throw new Error('Unsupported image source type');
-    }
+    const form = new FormData();
+    form.append('image', imageBuffer, {
+      filename: 'image.jpg',
+      contentType: 'image/jpeg',
+    });
 
-    // Extract features
-    const output = await extractor(image);
-    
-    // Output is a Tensor. We convert its data to a standard JS array.
-    // CLIP outputs a 512-dimension array for pooler_output.
-    const vector = Array.from(output.data);
-    
-    return vector;
+    const response = await axios.post(HF_SPACE_URL, form, {
+      headers: {
+        ...form.getHeaders(),
+      },
+    });
+
+    if (response.data && response.data.vector) {
+      return response.data.vector;
+    } else {
+      throw new Error('Invalid response from Hugging Face Space');
+    }
   } catch (error) {
-    console.error('Error generating image embedding:', error);
-    throw error;
+    console.error('Error calling Hugging Face AI Space:', error.message);
+    throw new Error('AI Search service is currently unavailable.');
   }
 };
 
