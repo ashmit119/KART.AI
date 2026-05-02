@@ -10,8 +10,19 @@ const createProduct = async (req, res) => {
       return res.status(400).json({ error: 'Image file is required.' });
     }
 
-    // Step 1: Upload image to Cloudinary
-    console.log('Step 1: Uploading image to Cloudinary...');
+    // Step 1: Generate vector embedding using the BUFFER (Before uploading to Cloudinary)
+    console.log('Step 1: Generating image embedding...');
+    let vector_embedding = [];
+    try {
+      // Pass the buffer directly to our new Hugging Face service
+      vector_embedding = await generateImageEmbedding(req.file.buffer);
+      console.log('Step 1 OK — Embedding length:', vector_embedding.length);
+    } catch (embErr) {
+      console.warn('Step 1 SKIPPED — Could not generate embedding:', embErr.message);
+    }
+
+    // Step 2: Upload image to Cloudinary
+    console.log('Step 2: Uploading image to Cloudinary...');
     const b64 = Buffer.from(req.file.buffer).toString('base64');
     const dataURI = `data:${req.file.mimetype};base64,${b64}`;
 
@@ -21,17 +32,7 @@ const createProduct = async (req, res) => {
 
     const imageUrl = uploadResult.secure_url;
     const cloudinaryId = uploadResult.public_id;
-    console.log('Step 1 OK — Cloudinary URL:', imageUrl);
-
-    // Step 2: Generate vector embedding (non-fatal — skip if model unavailable)
-    console.log('Step 2: Generating image embedding...');
-    let vector_embedding = [];
-    try {
-      vector_embedding = await generateImageEmbedding(imageUrl);
-      console.log('Step 2 OK — Embedding length:', vector_embedding.length);
-    } catch (embErr) {
-      console.warn('Step 2 SKIPPED — Could not generate embedding:', embErr.message);
-    }
+    console.log('Step 2 OK — Cloudinary URL:', imageUrl);
 
     // Step 3: Save to MongoDB
     console.log('Step 3: Saving product to MongoDB...');
@@ -79,25 +80,25 @@ const getAllProducts = async (req, res) => {
 
 const deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const productId = req.params.id;
+    const product = await Product.findById(productId);
 
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    // Delete image from Cloudinary if it exists
+    // 1. Always delete from MongoDB first to ensure it disappears from the site
+    await Product.findByIdAndDelete(productId);
+    console.log('Product deleted from MongoDB');
+
+    // 2. Try to delete from Cloudinary in the background
     if (product.cloudinaryId) {
-      try {
-        await cloudinary.uploader.destroy(product.cloudinaryId);
-        console.log('Image deleted from Cloudinary');
-      } catch (cloudinaryErr) {
-        console.warn('Error deleting from Cloudinary:', cloudinaryErr.message);
-      }
+      cloudinary.uploader.destroy(product.cloudinaryId).catch(err => {
+        console.warn('Background Cloudinary cleanup failed:', err.message);
+      });
     }
 
-    await Product.findByIdAndDelete(req.params.id);
-
-    res.status(200).json({ ok: true, message: 'Product deleted successfully' });
+    res.status(200).json({ success: true, message: 'Product deleted successfully' });
   } catch (error) {
     console.error('Error deleting product:', error);
     res.status(500).json({ error: 'Internal server error deleting product.' });
