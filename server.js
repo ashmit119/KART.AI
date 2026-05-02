@@ -17,15 +17,28 @@ const PORT = process.env.PORT || 3000;
 // Connect to MongoDB
 connectDB();
 
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:8080',
+  'http://localhost:8081',
+  'http://localhost:5173',
+  'https://kart-ai.vercel.app',
+  process.env.CLIENT_URL
+].filter(Boolean);
+
 // CORS Middleware - allow localhost and vercel origins
 app.use(cors({
   origin: function (origin, callback) {
-    const isVercel = origin && (origin.endsWith('.vercel.app') || origin.includes('vercel.app'));
-    const isLocal = !origin || origin.indexOf('localhost') !== -1 || origin.indexOf('127.0.0.1') !== -1;
+    // Check if origin is allowed
+    const isAllowed = !origin || 
+      allowedOrigins.includes(origin) || 
+      origin.endsWith('.vercel.app') || 
+      origin.includes('vercel.app');
     
-    if (isLocal || isVercel || origin === process.env.CLIENT_URL) {
+    if (isAllowed) {
       callback(null, true);
     } else {
+      console.log(`[CORS] Rejected origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
