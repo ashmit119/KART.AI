@@ -60,8 +60,21 @@ const createProduct = async (req, res) => {
 
 const getAllProducts = async (req, res) => {
   try {
-    const { categorySlug } = req.query;
-    const filter = categorySlug ? { category: categorySlug } : {};
+    const { categorySlug, q, search } = req.query;
+    const query = q || search; // Support both 'q' and 'search' from frontend
+    
+    let filter = {};
+
+    if (categorySlug) {
+      filter.category = categorySlug;
+    }
+
+    if (query) {
+      filter.$or = [
+        { name: { $regex: query, $options: 'i' } },
+        { description: { $regex: query, $options: 'i' } }
+      ];
+    }
     
     const products = await Product.find(filter, { vector_embedding: 0 }).sort({ createdAt: -1 });
     res.status(200).json({ success: true, products });
