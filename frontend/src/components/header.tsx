@@ -137,18 +137,21 @@ export function Header() {
           />
           
           {/* Menu Content */}
-          <div className="relative w-[280px] bg-white h-full flex flex-col shadow-2xl animate-in slide-in-from-left duration-300 ease-out">
-            <div className="flex items-center justify-between p-6 border-b border-gray-100">
-              <span className="text-xl font-bold tracking-tighter">KART.AI<span className="text-sage">.</span></span>
+          <div 
+            className="relative w-[280px] h-full flex flex-col shadow-2xl animate-in slide-in-from-left duration-300 ease-out z-[101]"
+            style={{ backgroundColor: '#ffffff', opacity: 1 }}
+          >
+            <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-white">
+              <span className="text-xl font-bold tracking-tighter text-black">KART.AI<span className="text-sage">.</span></span>
               <button 
                 onClick={() => setMobileMenuOpen(false)} 
                 className="p-2 rounded-full hover:bg-gray-100 transition-colors"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5 text-black" />
               </button>
             </div>
             
-            <nav className="flex flex-col p-6 gap-8 text-lg font-semibold text-gray-900">
+            <nav className="flex flex-col p-6 gap-8 text-lg font-semibold text-black bg-white">
               <Link to="/categories" onClick={() => setMobileMenuOpen(false)} className="hover:text-sage transition-colors">All Categories</Link>
               <Link to="/categories" search={{ filter: "new" } as any} onClick={() => setMobileMenuOpen(false)} className="hover:text-sage transition-colors">New Arrivals</Link>
               <Link to="/categories" search={{ filter: "deals" } as any} onClick={() => setMobileMenuOpen(false)} className="hover:text-sage transition-colors">Deals</Link>
@@ -166,13 +169,13 @@ export function Header() {
                   <LogOut className="h-5 w-5" /> Sign Out
                 </button>
               ) : (
-                <Link to="/auth" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                <Link to="/auth" className="flex items-center gap-2 text-black" onClick={() => setMobileMenuOpen(false)}>
                   <User className="h-5 w-5" /> Sign In
                 </Link>
               )}
             </nav>
 
-            <div className="mt-auto p-6 border-t border-gray-100">
+            <div className="mt-auto p-6 border-t border-gray-100 bg-white">
               <p className="text-xs text-gray-400 font-medium">Crafted with ❤️ in India</p>
             </div>
           </div>
