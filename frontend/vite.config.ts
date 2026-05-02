@@ -9,7 +9,6 @@ import path from "path"
 export default defineConfig({
     plugins: [
         tanstackStart(),
-        tanstackRouter(),
         tailwindcss(),
         react(),
         tsconfigPaths(),
