@@ -105,7 +105,7 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile Search Bar - Tighter & More Integrated */}
+      {/* Mobile Search Bar */}
       <div className="md:hidden px-4 pb-3">
         <form onSubmit={onSearch}>
           <div className="flex items-center bg-muted/50 border border-transparent focus-within:border-sage/30 rounded-xl pl-3 pr-1.5 h-11 transition-all">
@@ -129,37 +129,52 @@ export function Header() {
 
       {/* Slide-out Mobile Menu Overlay */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 flex lg:hidden">
+        <div className="fixed inset-0 z-[100] flex lg:hidden">
+          {/* Backdrop */}
           <div 
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm" 
+            className="fixed inset-0 bg-foreground/20 backdrop-blur-md transition-opacity" 
             onClick={() => setMobileMenuOpen(false)}
           />
-          <div className="relative w-full max-w-xs bg-background shadow-2xl h-full flex flex-col animate-in slide-in-from-left duration-300">
-            <div className="flex items-center justify-between p-4 border-b">
-              <span className="font-bold tracking-tight">Menu</span>
-              <button onClick={() => setMobileMenuOpen(false)} className="p-2 -mr-2">
+          
+          {/* Menu Content */}
+          <div className="relative w-[280px] bg-white h-full flex flex-col shadow-2xl animate-in slide-in-from-left duration-300 ease-out">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <span className="text-xl font-bold tracking-tighter">KART.AI<span className="text-sage">.</span></span>
+              <button 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
             
-            <nav className="flex flex-col p-4 gap-6 text-lg font-medium">
-              <Link to="/categories" onClick={() => setMobileMenuOpen(false)}>All Categories</Link>
-              <Link to="/categories" search={{ filter: "new" } as any} onClick={() => setMobileMenuOpen(false)}>New Arrivals</Link>
-              <Link to="/categories" search={{ filter: "deals" } as any} onClick={() => setMobileMenuOpen(false)}>Deals</Link>
-              <hr className="border-border" />
+            <nav className="flex flex-col p-6 gap-8 text-lg font-semibold text-gray-900">
+              <Link to="/categories" onClick={() => setMobileMenuOpen(false)} className="hover:text-sage transition-colors">All Categories</Link>
+              <Link to="/categories" search={{ filter: "new" } as any} onClick={() => setMobileMenuOpen(false)} className="hover:text-sage transition-colors">New Arrivals</Link>
+              <Link to="/categories" search={{ filter: "deals" } as any} onClick={() => setMobileMenuOpen(false)} className="hover:text-sage transition-colors">Deals</Link>
+              
+              <div className="h-px bg-gray-100 my-2" />
+              
               {isAdmin && (
                 <Link to="/admin/products" className="text-sage flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
                   <Shield className="h-5 w-5" /> Admin Panel
                 </Link>
               )}
+              
               {user ? (
-                <button onClick={() => { signOut(); setMobileMenuOpen(false); }} className="flex items-center gap-2 text-red-500">
+                <button onClick={() => { signOut(); setMobileMenuOpen(false); }} className="flex items-center gap-2 text-red-500 text-left">
                   <LogOut className="h-5 w-5" /> Sign Out
                 </button>
               ) : (
-                <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Sign In</Link>
+                <Link to="/auth" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+                  <User className="h-5 w-5" /> Sign In
+                </Link>
               )}
             </nav>
+
+            <div className="mt-auto p-6 border-t border-gray-100">
+              <p className="text-xs text-gray-400 font-medium">Crafted with ❤️ in India</p>
+            </div>
           </div>
         </div>
       )}
