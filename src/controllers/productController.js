@@ -10,19 +10,15 @@ const createProduct = async (req, res) => {
       return res.status(400).json({ error: 'Image file is required.' });
     }
 
-    // Step 1: Generate vector embedding using the BUFFER (Before uploading to Cloudinary)
-    console.log('Step 1: Generating image embedding...');
+    // Generate vector embedding using the buffer
     let vector_embedding = [];
     try {
-      // Pass the buffer directly to our new Hugging Face service
       vector_embedding = await generateImageEmbedding(req.file.buffer);
-      console.log('Step 1 OK — Embedding length:', vector_embedding.length);
     } catch (embErr) {
-      console.warn('Step 1 SKIPPED — Could not generate embedding:', embErr.message);
+      console.warn('Embedding skipped:', embErr.message);
     }
 
-    // Step 2: Upload image to Cloudinary
-    console.log('Step 2: Uploading image to Cloudinary...');
+    // Upload image to Cloudinary
     const b64 = Buffer.from(req.file.buffer).toString('base64');
     const dataURI = `data:${req.file.mimetype};base64,${b64}`;
 
@@ -32,10 +28,8 @@ const createProduct = async (req, res) => {
 
     const imageUrl = uploadResult.secure_url;
     const cloudinaryId = uploadResult.public_id;
-    console.log('Step 2 OK — Cloudinary URL:', imageUrl);
 
-    // Step 3: Save to MongoDB
-    console.log('Step 3: Saving product to MongoDB...');
+    // Save product to database
     const newProduct = new Product({
       name,
       description,
@@ -47,10 +41,9 @@ const createProduct = async (req, res) => {
     });
 
     await newProduct.save();
-    console.log('Step 3 OK — Product saved, ID:', newProduct._id);
 
     res.status(201).json({
-      message: 'Product created successfully',
+      success: true,
       product: {
         _id: newProduct._id,
         name: newProduct.name,
@@ -87,14 +80,13 @@ const deleteProduct = async (req, res) => {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    // 1. Always delete from MongoDB first to ensure it disappears from the site
+    // Delete from database
     await Product.findByIdAndDelete(productId);
-    console.log('Product deleted from MongoDB');
 
-    // 2. Try to delete from Cloudinary in the background
+    // Background cleanup of Cloudinary assets
     if (product.cloudinaryId) {
       cloudinary.uploader.destroy(product.cloudinaryId).catch(err => {
-        console.warn('Background Cloudinary cleanup failed:', err.message);
+        console.warn('Cloudinary cleanup failed:', err.message);
       });
     }
 

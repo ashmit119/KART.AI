@@ -26,45 +26,36 @@ const allowedOrigins = [
   process.env.CLIENT_URL
 ].filter(Boolean);
 
-// CORS Middleware - allow localhost and vercel origins
 app.use(cors({
   origin: function (origin, callback) {
-    // Check if origin is allowed
     const isAllowed = !origin || 
       allowedOrigins.includes(origin) || 
-      origin.endsWith('.vercel.app') || 
-      origin.includes('vercel.app');
+      origin.endsWith('.vercel.app');
     
     if (isAllowed) {
       callback(null, true);
     } else {
-      console.log(`[CORS] Rejected origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true
 }));
 
-// Webhook route needs raw body parser, so it MUST be defined before express.json()
+// Routes
 app.use('/api/webhooks', webhookRoutes);
-
-// Body Parser Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// API Routes
 app.use('/api/admin', adminRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/auth', authRoutes);
 
-// Health check endpoint
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', message: 'KartAI Backend is running.' });
+  res.status(200).json({ status: 'OK' });
 });
 
-// Start Server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`KartAI Server active on port ${PORT}`);
 });

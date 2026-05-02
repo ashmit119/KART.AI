@@ -24,42 +24,43 @@ function Home() {
     <div>
       {/* Hero */}
       <section className="relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
-          <div className="relative overflow-hidden rounded-3xl aspect-[16/9] sm:aspect-[21/9] bg-muted">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 sm:pt-6">
+          <div className="relative overflow-hidden rounded-[2rem] sm:rounded-3xl aspect-[4/5] sm:aspect-[21/9] bg-muted shadow-lg">
             <img
               src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=1800&q=80"
-              alt="A sun-lit modern living room with linen sofa and ceramic vases"
-              className="absolute inset-0 w-full h-full object-cover"
+              alt="Modern living room"
+              className="absolute inset-0 w-full h-full object-cover sm:object-center"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-background/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent sm:bg-gradient-to-r" />
+            
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7 }}
-              className="relative h-full flex items-center"
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="relative h-full flex items-end sm:items-center p-8 sm:p-12 lg:px-20"
             >
-              <div className="px-8 sm:px-12 lg:px-20 max-w-xl">
-                <p className="text-sm font-medium text-sage mb-3">Spring Edit · 2026</p>
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.05]">
-                  Quiet luxury for everyday rituals.
+              <div className="max-w-xl pb-6 sm:pb-0">
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-xs sm:text-sm font-semibold text-sage uppercase tracking-widest mb-2 sm:mb-3"
+                >
+                  Spring Edit · 2026
+                </motion.p>
+                <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tighter text-foreground leading-[0.95] sm:leading-[1.05]">
+                  Quiet luxury<br className="sm:hidden" /> for everyday.
                 </h1>
-                <p className="mt-4 text-base text-foreground/80 leading-relaxed">
-                  An AI powered marketplace for your needs.
+                <p className="mt-4 text-sm sm:text-base text-foreground/80 leading-relaxed max-w-sm">
+                  Experience a new era of AI-powered shopping designed for your aesthetic.
                 </p>
-                <div className="mt-6 flex flex-wrap gap-3">
+                <div className="mt-8 flex flex-wrap gap-3">
                   <Link
                     to="/categories"
-                    className="inline-flex items-center gap-2 bg-foreground text-background px-6 py-3 rounded-full text-sm font-semibold hover:bg-foreground/90 transition-colors"
+                    className="inline-flex items-center gap-2 bg-foreground text-background px-8 py-4 rounded-full text-sm font-bold hover:scale-105 active:scale-95 transition-all shadow-xl"
                   >
                     Shop the Look
                     <ArrowRight className="h-4 w-4" />
-                  </Link>
-                  <Link
-                    to="/categories"
-                    search={{ filter: "new" } as any}
-                    className="inline-flex items-center gap-2 bg-background/90 backdrop-blur text-foreground px-6 py-3 rounded-full text-sm font-semibold hover:bg-background transition-colors"
-                  >
-                    New Arrivals
                   </Link>
                 </div>
               </div>
@@ -69,17 +70,17 @@ function Home() {
       </section>
 
       {/* Categories */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 mt-16 sm:mt-20">
-        <div className="flex items-end justify-between mb-6">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 mt-12 sm:mt-20">
+        <div className="flex items-end justify-between mb-8">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Shop by category</h2>
-            <p className="text-sm text-muted-foreground mt-1">Browse our four worlds.</p>
+            <h2 className="text-2xl sm:text-4xl font-bold tracking-tight">Shop by category</h2>
+            <p className="text-sm text-muted-foreground mt-1 font-medium">Browse our four curated worlds.</p>
           </div>
-          <Link to="/categories" className="text-sm text-sage font-medium hover:underline hidden sm:block">
+          <Link to="/categories" className="text-sm text-sage font-semibold hover:underline hidden sm:block">
             View all →
           </Link>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
           {(categories ?? []).map((c, i) => (
             <CategoryCard key={c.id} category={c} index={i} />
           ))}

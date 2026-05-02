@@ -57,10 +57,10 @@ export function ProductCard({ product, onSearchSimilar, index = 0 }: Props) {
               e.stopPropagation();
               onSearchSimilar(product.image_url);
             }}
-            className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-background/95 backdrop-blur-sm text-foreground text-xs font-medium px-3 py-1.5 rounded-full shadow-soft flex items-center gap-1.5 hover:bg-background"
+            className="absolute bottom-3 right-3 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity bg-background/95 backdrop-blur-sm text-foreground text-[10px] sm:text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 hover:bg-background active:scale-95"
           >
             <Search className="h-3 w-3" />
-            Search Similar
+            <span className="sm:inline">Search Similar</span>
           </button>
         )}
       </Link>

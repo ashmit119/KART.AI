@@ -2,14 +2,12 @@ const axios = require('axios');
 const FormData = require('form-data');
 require('dotenv').config();
 
-// Your new Hugging Face Space URL
-const HF_SPACE_URL = 'https://ashmit119-kart-ai.hf.space/embed';
+const HF_SPACE_URL = process.env.HF_SPACE_URL || 'https://ashmit119-kart-ai.hf.space/embed';
 
 /**
- * Generates a vector embedding for a given image by calling your dedicated 
- * Hugging Face Space. This keeps your Render server under the memory limit.
+ * Generates a vector embedding for an image using the Hugging Face microservice.
  * @param {Buffer} imageBuffer - The image data.
- * @returns {Promise<number[]>} - The feature vector.
+ * @returns {Promise<number[]>} - The 512-dimension feature vector.
  */
 const generateImageEmbedding = async (imageBuffer) => {
   try {
@@ -20,22 +18,17 @@ const generateImageEmbedding = async (imageBuffer) => {
     });
 
     const response = await axios.post(HF_SPACE_URL, form, {
-      headers: {
-        ...form.getHeaders(),
-      },
+      headers: { ...form.getHeaders() },
     });
 
-    if (response.data && response.data.vector) {
+    if (response.data?.vector) {
       return response.data.vector;
-    } else {
-      throw new Error('Invalid response from Hugging Face Space');
     }
+    throw new Error('Invalid response from AI service');
   } catch (error) {
-    console.error('Error calling Hugging Face AI Space:', error.message);
-    throw new Error('AI Search service is currently unavailable.');
+    console.error('AI Service Error:', error.message);
+    throw new Error('AI Search service unavailable.');
   }
 };
 
-module.exports = {
-  generateImageEmbedding,
-};
+module.exports = { generateImageEmbedding };
