@@ -7,7 +7,6 @@ export const visualSearch = createServerFn({ method: "POST" })
     z.object({ imageDataUrl: z.string().min(20) }).parse(d),
   )
   .handler(async ({ data }) => {
-    // Convert base64 to Blob for multipart upload
     const base64Data = data.imageDataUrl.split(",")[1];
     const byteCharacters = atob(base64Data);
     const byteNumbers = new Array(byteCharacters.length);
@@ -46,13 +45,12 @@ export const chat = createServerFn({ method: "POST" })
 
     return { 
       reply: result.reply, 
-      products: [] // The backend handles grounding
+      products: []
     };
   });
 
 export const getChatHistory = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ sessionId: z.string().min(8) }).parse(d))
   .handler(async () => {
-    // Backend is currently stateless for chat, returning empty history
     return { messages: [] };
   });

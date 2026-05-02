@@ -17,9 +17,16 @@ const PORT = process.env.PORT || 3000;
 // Connect to MongoDB
 connectDB();
 
-// CORS Middleware
+// CORS Middleware - allow localhost origins for dev
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:8081'
+  origin: function (origin, callback) {
+    if (!origin || origin.indexOf('localhost') !== -1 || origin === process.env.CLIENT_URL) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
 }));
 
 // Webhook route needs raw body parser, so it MUST be defined before express.json()

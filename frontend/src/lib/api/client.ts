@@ -1,14 +1,3 @@
-/**
- * API client for your Node.js / Express / MongoDB backend.
- *
- * Configure the base URL with the env var VITE_API_BASE_URL.
- * Example .env entry:
- *   VITE_API_BASE_URL=http://localhost:4000/api
- *
- * All requests use JSON. Auth uses a Bearer JWT stored in localStorage
- * under the key `auth_token`. Set/clear it via setAuthToken().
- */
-
 const TOKEN_KEY = "auth_token";
 
 export const API_BASE_URL: string =
@@ -40,7 +29,7 @@ type ReqOptions = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: any;
   query?: Record<string, string | number | boolean | undefined | null>;
-  auth?: boolean; // attach JWT if available (default true)
+  auth?: boolean;
   signal?: AbortSignal;
 };
 
@@ -66,8 +55,6 @@ export async function apiFetch<T = any>(
   const headers: Record<string, string> = {
     Accept: "application/json",
   };
-  // Do NOT set Content-Type for FormData — the browser sets it automatically
-  // with the correct multipart boundary.
   if (body !== undefined && !isFormData) headers["Content-Type"] = "application/json";
 
   if (auth) {
@@ -106,7 +93,6 @@ export async function apiFetch<T = any>(
     throw new ApiError(res.status, String(message), data);
   }
 
-  // If we expected JSON but got an HTML string (e.g. from a dev server fallback)
   if (typeof data === "string" && data.trim().startsWith("<")) {
     throw new ApiError(res.status, "Expected JSON but received HTML", data);
   }
