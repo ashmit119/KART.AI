@@ -49,7 +49,8 @@
 ```bash
 git clone [https://github.com/ashmit119/KART.AI.git](https://github.com/ashmit119/KART.AI.git)
 cd KART.AI
- Environment Setup
+
+Environment Setup
 Create a .env file in the root directory:
 
 Code snippet
