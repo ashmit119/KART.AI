@@ -67,7 +67,7 @@ export function listCategories(): Promise<Category[]> {
   // Return mocked categories since the backend doesn't have a /categories route yet.
   return Promise.resolve([
     { id: "1", slug: "fashion", name: "Fashion", image_url: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=800&q=80", sort_order: 1 },
-    { id: "2", slug: "home", name: "Home", image_url: "https://images.unsplash.com/photo-1556020685-e631950d4d80?w=800&q=80", sort_order: 2 },
+    { id: "2", slug: "home", name: "Home", image_url: "https://images.unsplash.com/photo-1505691723518-36a5ac3be353?w=1200&q=80", sort_order: 2 },
     { id: "3", slug: "beauty", name: "Beauty", image_url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&q=80", sort_order: 3 },
     { id: "4", slug: "electronics", name: "Electronics", image_url: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&q=80", sort_order: 4 },
   ]);

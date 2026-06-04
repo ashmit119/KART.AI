@@ -1,4 +1,5 @@
 import { createRoot } from 'react-dom/client'
+// @ts-ignore
 import { StartClient } from '@tanstack/react-start'
 import { getRouter } from './router'
 
