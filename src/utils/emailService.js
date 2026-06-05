@@ -2,9 +2,10 @@ const emailjs = require('@emailjs/nodejs');
 const Product = require('../models/Product'); // Ensure the Product model is registered for populate
 require('dotenv').config();
 
-// Initialize EmailJS with public key
+// Initialize EmailJS with public key and optional private key
 emailjs.init({
   publicKey: process.env.EMAILJS_PUBLIC_KEY,
+  privateKey: process.env.EMAILJS_PRIVATE_KEY,
 });
 
 /**
