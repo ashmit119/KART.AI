@@ -35,22 +35,43 @@ const handleStripeWebhook = async (req, res) => {
       if (order) {
         console.log(`Order ${order._id} marked as Paid.`);
 
-        // Send order confirmation email if user is associated
+        // Determine recipient email and name for the confirmation email
+        let recipientEmail = null;
+        let recipientName = null;
+
         if (order.userId) {
           try {
             const user = await User.findById(order.userId);
             if (user) {
-              const emailSent = await sendOrderConfirmationEmail(user, order);
-              if (emailSent) {
-                console.log(`Confirmation email sent for order ${order._id}`);
-              }
+              recipientEmail = user.email;
+              recipientName = user.email.split('@')[0];
             } else {
-              console.warn(`User ${order.userId} not found — skipping confirmation email.`);
+              console.warn(`User ${order.userId} not found in DB.`);
+            }
+          } catch (userError) {
+            console.error(`Error fetching user for order ${order._id}:`, userError.message);
+          }
+        }
+
+        // Fallback to Stripe session customer details (e.g. guest checkout)
+        if (!recipientEmail && session.customer_details && session.customer_details.email) {
+          recipientEmail = session.customer_details.email;
+          recipientName = session.customer_details.name || recipientEmail.split('@')[0];
+          console.log(`Guest checkout detected. Using Stripe customer email: ${recipientEmail}`);
+        }
+
+        if (recipientEmail) {
+          try {
+            const tempUserObj = { email: recipientEmail, name: recipientName };
+            const emailSent = await sendOrderConfirmationEmail(tempUserObj, order);
+            if (emailSent) {
+              console.log(`Confirmation email sent to ${recipientEmail} for order ${order._id}`);
             }
           } catch (emailError) {
-            // Never let email failures break the webhook
             console.error(`Email send error for order ${order._id}:`, emailError.message);
           }
+        } else {
+          console.warn(`No recipient email address available for order ${order._id} — skipping confirmation email.`);
         }
       } else {
         console.warn(`Order with session ID ${session.id} not found.`);
