@@ -17,10 +17,6 @@ const PORT = process.env.PORT || 3000;
 // Connect to MongoDB
 connectDB();
 
-// Pre-load AI Search Model (CLIP) on startup
-const { initializeModel } = require('./src/services/embeddingService');
-initializeModel().catch(err => console.error('AI Model pre-load warning:', err.message));
-
 
 const allowedOrigins = [
   'http://localhost:3000',

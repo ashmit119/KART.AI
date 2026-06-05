@@ -1,68 +1,34 @@
-const { AutoProcessor, CLIPVisionModelWithProjection, RawImage } = require('@huggingface/transformers');
+const { AutoProcessor, CLIPVisionModelWithProjection, RawImage, env } = require('@huggingface/transformers');
 require('dotenv').config();
 
-/**
- * Global variable to cache the loaded CLIP model and processor
- */
-let clipModel = null;
-let clipProcessor = null;
-
-/**
- * Initialize CLIP model and processor on demand (lazy loading)
- * This ensures the model is loaded once and reused for all searches
- * @returns {Promise<void>}
- */
-const initializeModel = async () => {
-  if (clipModel && clipProcessor) {
-    return; // Already initialized, reuse cached model/processor
-  }
-  try {
-    console.log('Loading AI model...');
-    const startTime = Date.now();
-
-    // Load the model
-    clipModel = await CLIPVisionModelWithProjection.from_pretrained(
-      'Xenova/clip-vit-base-patch32',
-      {
-        quantized: true, // Use quantized version for faster loading
-        progress_callback: (data) => {
-          if (data.status === 'downloading') {
-            console.log(`  Downloading: ${(data.progress || 0).toFixed(1)}%`);
-          }
-        },
-      }
-    );
-
-    // Load the processor
-    clipProcessor = await AutoProcessor.from_pretrained('Xenova/clip-vit-base-patch32');
-
-    const loadTime = Date.now() - startTime;
-    console.log(`AI model ready (loaded in ${(loadTime / 1000).toFixed(2)}s)`);
-  } catch (error) {
-    console.error('Failed to initialize CLIP model:', error.message);
-    throw new Error(`AI model initialization failed: ${error.message}`);
-  }
+// Apply memory-saving ONNX configurations to restrict threads and memory pre-allocation
+env.backends.onnx.sessionOptions = {
+  use_memory_arena: false,
+  intra_op_num_threads: 1,
+  inter_op_num_threads: 1,
 };
 
 /**
- * Generates a vector embedding for an image using the cached CLIP model
+ * Generates a vector embedding for an image.
+ * To keep memory usage under 512MB, the model is loaded on demand
+ * and its ONNX runtime session is immediately released after inference.
  * @param {Buffer} imageBuffer - The image data (JPEG/PNG)
  * @returns {Promise<number[]>} - The 512-dimension feature vector
- * @throws {Error} If model is not initialized or processing fails
  */
 const generateImageEmbedding = async (imageBuffer) => {
+  let clipModel = null;
   try {
-    // Lazy initialize the model on first call
-    await initializeModel();
+    // 1. Load the model and processor on demand
+    clipModel = await CLIPVisionModelWithProjection.from_pretrained(
+      'Xenova/clip-vit-base-patch32',
+      { quantized: true }
+    );
+    const clipProcessor = await AutoProcessor.from_pretrained('Xenova/clip-vit-base-patch32');
 
-    if (!clipModel || !clipProcessor) {
-      throw new Error('CLIP model could not be initialized.');
-    }
-
-    // Convert Buffer to a Web Blob for RawImage parsing
+    // 2. Read the image and generate embedding
     const imageBlob = new Blob([imageBuffer]);
     const image = await RawImage.read(imageBlob);
-
+    
     // Create image tensor and process (processor handles scaling & normalization)
     const { pixel_values } = await clipProcessor(image);
 
@@ -76,11 +42,26 @@ const generateImageEmbedding = async (imageBuffer) => {
   } catch (error) {
     console.error('Image Embedding Error:', error.message);
     throw new Error(`Failed to generate image embedding: ${error.message}`);
+  } finally {
+    // 3. Explicitly release memory from ONNX Runtime sessions
+    if (clipModel && clipModel.sessions) {
+      for (const key in clipModel.sessions) {
+        try {
+          await clipModel.sessions[key].release();
+        } catch (releaseErr) {
+          console.warn('Failed to release session:', releaseErr.message);
+        }
+      }
+    }
+    // 4. Force V8 garbage collection if run with --expose-gc
+    if (global.gc) {
+      global.gc();
+    }
   }
 };
 
 module.exports = { 
-  initializeModel,
   generateImageEmbedding 
 };
+
 
