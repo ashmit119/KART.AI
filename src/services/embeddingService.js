@@ -1,4 +1,4 @@
-const { AutoProcessor, CLIPVisionModelWithProjection } = require('@huggingface/transformers');
+const { AutoProcessor, CLIPVisionModelWithProjection, RawImage } = require('@huggingface/transformers');
 require('dotenv').config();
 
 /**
@@ -59,23 +59,17 @@ const generateImageEmbedding = async (imageBuffer) => {
       throw new Error('CLIP model could not be initialized.');
     }
 
-    // Import sharp for image processing if needed
-    const sharp = require('sharp');
+    // Convert Buffer to a Web Blob for RawImage parsing
+    const imageBlob = new Blob([imageBuffer]);
+    const image = await RawImage.read(imageBlob);
 
-    // Convert buffer to RGB format expected by CLIP
-    const imageData = await sharp(imageBuffer)
-      .resize(224, 224, { fit: 'cover' })
-      .rgb()
-      .raw()
-      .toBuffer();
-
-    // Create image tensor and process
-    const { pixel_values } = await clipProcessor(imageData);
+    // Create image tensor and process (processor handles scaling & normalization)
+    const { pixel_values } = await clipProcessor(image);
 
     // Generate embeddings
     const { image_embeds } = await clipModel({ pixel_values });
 
-    // Convert tensor to array and normalize
+    // Convert tensor to array
     const embedding = Array.from(image_embeds.data);
 
     return embedding;
@@ -89,3 +83,4 @@ module.exports = {
   initializeModel,
   generateImageEmbedding 
 };
+
