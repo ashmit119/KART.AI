@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./src/config/db');
-const { initializeModel } = require('./src/services/embeddingService');
 
 // Import Routes
 const adminRoutes = require('./src/routes/adminRoutes');
@@ -57,12 +56,9 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK' });
 });
 
-// Initialize AI model and start server
-const startServer = async () => {
+// Start server
+const startServer = () => {
   try {
-    // Load CLIP model before starting server
-    await initializeModel();
-
     app.listen(PORT, () => {
       console.log(`KartAI Server active on port ${PORT}`);
     });

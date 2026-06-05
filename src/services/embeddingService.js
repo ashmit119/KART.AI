@@ -8,11 +8,14 @@ let clipModel = null;
 let clipProcessor = null;
 
 /**
- * Initialize CLIP model and processor on server startup
+ * Initialize CLIP model and processor on demand (lazy loading)
  * This ensures the model is loaded once and reused for all searches
  * @returns {Promise<void>}
  */
 const initializeModel = async () => {
+  if (clipModel && clipProcessor) {
+    return; // Already initialized, reuse cached model/processor
+  }
   try {
     console.log('Loading AI model...');
     const startTime = Date.now();
@@ -49,8 +52,11 @@ const initializeModel = async () => {
  */
 const generateImageEmbedding = async (imageBuffer) => {
   try {
+    // Lazy initialize the model on first call
+    await initializeModel();
+
     if (!clipModel || !clipProcessor) {
-      throw new Error('CLIP model not initialized. Call initializeModel() first.');
+      throw new Error('CLIP model could not be initialized.');
     }
 
     // Import sharp for image processing if needed
