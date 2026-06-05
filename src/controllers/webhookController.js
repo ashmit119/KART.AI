@@ -1,5 +1,7 @@
 const Stripe = require('stripe');
 const Order = require('../models/Order');
+const User = require('../models/User');
+const { sendOrderConfirmationEmail } = require('../utils/emailService');
 require('dotenv').config();
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
@@ -32,6 +34,24 @@ const handleStripeWebhook = async (req, res) => {
 
       if (order) {
         console.log(`Order ${order._id} marked as Paid.`);
+
+        // Send order confirmation email if user is associated
+        if (order.userId) {
+          try {
+            const user = await User.findById(order.userId);
+            if (user) {
+              const emailSent = await sendOrderConfirmationEmail(user, order);
+              if (emailSent) {
+                console.log(`Confirmation email sent for order ${order._id}`);
+              }
+            } else {
+              console.warn(`User ${order.userId} not found — skipping confirmation email.`);
+            }
+          } catch (emailError) {
+            // Never let email failures break the webhook
+            console.error(`Email send error for order ${order._id}:`, emailError.message);
+          }
+        }
       } else {
         console.warn(`Order with session ID ${session.id} not found.`);
       }

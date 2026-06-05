@@ -24,6 +24,27 @@ const protect = async (req, res, next) => {
   }
 };
 
+/**
+ * Optional auth — attaches req.user if a valid JWT is provided,
+ * but allows the request to proceed even without one (guest checkout).
+ */
+const optionalProtect = async (req, res, next) => {
+  try {
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith('Bearer')
+    ) {
+      const token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
+      req.user = await User.findById(decoded.id).select('-password');
+    }
+  } catch (error) {
+    // Token invalid or expired — continue as guest
+    req.user = null;
+  }
+  next();
+};
+
 const admin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     next();
@@ -32,4 +53,4 @@ const admin = (req, res, next) => {
   }
 };
 
-module.exports = { protect, admin };
+module.exports = { protect, optionalProtect, admin };

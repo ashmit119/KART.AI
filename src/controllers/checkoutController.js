@@ -48,6 +48,7 @@ const createCheckoutSession = async (req, res) => {
 
     // Create Order in pending state
     const order = new Order({
+      userId: req.user ? req.user._id : null,
       items: items,
       totalAmount: totalAmount / 100, // Store in dollars
       stripeSessionId: session.id,
